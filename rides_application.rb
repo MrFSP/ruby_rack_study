@@ -10,8 +10,13 @@ class RidesApplication
       if request.post?
         begin
           ride = JSON.parse(request.body.read)
-          Database.add_ride(ride)
-          response.write(JSON.generate({ message: 'Ride received' }))
+          if ride['user_id'].nil?
+            response.status = 400
+            response.write('user_id field is required')
+          else
+            Database.add_ride(ride)
+            response.write(JSON.generate({ message: 'Ride received' }))
+          end
         rescue JSON::ParserError
           response.status = 400
           response.write('Invalid JSON')
