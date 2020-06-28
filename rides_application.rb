@@ -3,19 +3,35 @@ require 'json'
 class RidesApplication
   def call(env)
     request = Rack::Request.new(env)
+    response = Rack::Response.new
+    response.headers['Content-Type'] = 'application/json'
+
     if env['PATH_INFO'] == ''
       if request.post?
-        ride = JSON.parse(request.body.read)
-        Database.add_ride(ride)
-        [200, {}, ['Ride received']]
+        begin
+          ride = JSON.parse(request.body.read)
+          if ride['user_id'].nil?
+            response.status = 400
+            response.write('user_id field is required')
+          else
+            Database.add_ride(ride)
+            response.write(JSON.generate({ message: 'Ride received' }))
+          end
+        rescue JSON::ParserError
+          response.status = 400
+          response.write('Invalid JSON')
+        end
       else
-        [200, {}, [Database.rides.to_s]]
+        response.write(JSON.generate(Database.rides))
       end
     elsif env['PATH_INFO'] =~ %r{/\d+}
       id = env['PATH_INFO'].split('/').last.to_i
-      [200, {}, [Database.rides[id].to_s]]
+      response.write(JSON.generate(Database.rides[id]))
     else
-      [404, {}, ['<h1>Nothing Here!</h1>']]
+      response.status = 404
+      response.write('Nothing Here')
     end
+
+    response.finish
   end
 end
