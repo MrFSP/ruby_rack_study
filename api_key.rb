@@ -10,6 +10,7 @@ class ApiKey
     if user.nil?
       [403, {}, ["Forbidden"]]
     else
+      env["rides_app.user_id"] = user[:id]
       @app.call(env)
     end
   end
