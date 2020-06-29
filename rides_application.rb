@@ -3,7 +3,11 @@ require 'json'
 class RidesApplication
   include ApplicationHelpers
 
-  def call(env) 
+  def initialize(database)
+    @database = database
+  end
+
+  def call(env)
     request  = Rack::Request.new(env)
     response = Rack::Response.new
     response.headers["Content-Type"] = "application/json"
@@ -27,7 +31,7 @@ class RidesApplication
     if ride["user_id"].nil?
       error(response, "user_id field is required")
     else
-      Database.add_ride(ride)
+      @database.add_ride(ride)
       respond_with_object(response, { message: "Ride received"})
     end
   rescue JSON::ParserError
@@ -35,12 +39,12 @@ class RidesApplication
   end
 
   def get_all_rides(request, response)
-    respond_with_object(response, Database.rides)
+    respond_with_object(response, @database.rides(request.env["rides_app.user_id"]))
   end
 
   def get_a_ride(request, response)
     id = request.path_info.split("/").last.to_i
-    ride = Database.rides[id]
+    ride = @database.rides(request.env["rides_app.user_id"])[id]
     if ride.nil?
       error(response, "No ride with id #{id}", 404)
     else
@@ -48,3 +52,4 @@ class RidesApplication
     end
   end
 end
+
