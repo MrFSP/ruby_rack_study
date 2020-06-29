@@ -7,24 +7,16 @@ require_relative 'env_application'
 require_relative 'database'
 database = Database.new
 
-use ApiKey, database: database
-
-use Rack::Runtime
-use Rack::ContentType, "application/json"
-use Rack::ContentLength
-
-use Rack::ETag
-use Rack::ConditionalGet
-use Rack::Deflater
+use ApiKey
 
 map('/users') do
-  run UsersApplication.new(database)
+  run UsersApplication.new
 end
 
 map('/rides') do
-  run UsersApplication.new(database)
+  run RidesApplication.new
 end
 
 map('/env') do
-  run UsersApplication.new(database)
+  run EnvApplication.new
 end
