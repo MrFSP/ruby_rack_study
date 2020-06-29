@@ -8,22 +8,30 @@ class UsersApplication
     response = Rack::Response.new
     response.headers["Content-Type"] = "application/json"
 
-    if request.path_info == ''
-      response.write(JSON.generate(Database.users))
-    elsif request.path_info =~ %r{/\d+}
-      id = request.path_info.split('/').last.to_i
-      user = Database.users[id]
-      if user.nil?
-        response.status = 404
-        response.write("No user with id #{id}")
-      else
-        response.write(JSON.generate(Database.users[id]))
-      end
+    case request.path_info
+    when ""
+      get_all_users(request, response)
+    when %r{/\d+}
+      get_a_user(request, response)
     else
-      response.status = 404
-      response.write('<h1>Nothing Here!</h1>')
+      missing(response)
     end
 
     response.finish
   end
+
+  def get_all_users(request, response)
+    respond_with_object(response, Database.users(request.env["rides_app.user_id"]))
+  end
+
+  def get_a_user(request, response)
+    id = request.path_info.split("/").last.to_i
+    user = Database.users(request.env["rides_app.user_id"])[id]
+    if user.nil?
+      error(response, "No user with id #{id}", 404)
+    else
+      respond_with_object(response, user)
+    end
+  end
 end
+

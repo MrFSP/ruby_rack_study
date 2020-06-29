@@ -1,11 +1,13 @@
 class Database
   USERS = {
-    1 => { name: 'Jason', bike: 'Cannondale' },
-    2 => { name: 'Coraline', bike: 'Trek' }
+    1 => { id: 1, name: "Jason", bike: "Cannondale", api_key: "1234" },
+    2 => { id: 2, name: "Coraline", bike: "Trek", api_key: "abcd" }
   }
 
-  def self.users
-    USERS
+  def self.users(user_id)
+    USERS.select do |id, _|
+      id == user_id
+    end
   end
 
   def self.user_by_api_key(key)
