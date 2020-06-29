@@ -3,6 +3,10 @@ require 'json'
 class UsersApplication
   include ApplicationHelpers
 
+  def initialize(database)
+    @database = database
+  end
+
   def call(env)
     request  = Rack::Request.new(env)
     response = Rack::Response.new
@@ -21,12 +25,12 @@ class UsersApplication
   end
 
   def get_all_users(request, response)
-    respond_with_object(response, Database.users(request.env["rides_app.user_id"]))
+    respond_with_object(response, @database.users(request.env["rides_app.user_id"]))
   end
 
   def get_a_user(request, response)
     id = request.path_info.split("/").last.to_i
-    user = Database.users(request.env["rides_app.user_id"])[id]
+    user = @database.users(request.env["rides_app.user_id"])[id]
     if user.nil?
       error(response, "No user with id #{id}", 404)
     else

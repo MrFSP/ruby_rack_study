@@ -1,4 +1,9 @@
 class EnvApplication
+
+  def initialize(database)
+    @database = database
+  end
+
   def call(env)
     if env['PATH_INFO'] == ''
       request = Rack::Request.new(env)
