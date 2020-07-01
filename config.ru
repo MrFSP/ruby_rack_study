@@ -13,6 +13,12 @@ require_relative 'database'
 database = Database.new
 
 use Rack::Runtime
+use Rack::ContentType, 'application/json'
+use Rack::ContentLength
+
+use Rack::ETag
+use Rack::ConditionalGet
+use Rack::Deflater
 
 if ENV['RACK_ENV'] == 'production'
   use Rack::NullLogger
@@ -29,6 +35,13 @@ use Rack::ShowStatus
 use FriendlyErrors
 
 use WhoIsCalling
+
+use Rack::Sendfile
+use Rack::Static, urls: ['/docs']
+
+map('/docs') do
+  run Rack::File.new('./docs')
+end
 
 map('/users') do
   run UsersApplication.new(database)
