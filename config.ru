@@ -12,6 +12,11 @@ require_relative 'env_application'
 require_relative 'database'
 database = Database.new
 
+use Rack::Session::Cookie, secret: "shhhhhh"
+
+require_relative "url_appender"
+use UrlAppender
+
 use Rack::Runtime
 use Rack::ContentType, 'application/json'
 use Rack::ContentLength
@@ -37,7 +42,7 @@ use FriendlyErrors
 use WhoIsCalling
 
 use Rack::Sendfile
-use Rack::Static, urls: ['/docs']
+use Rack::Static, urls: ['/docs'], root: "public"
 
 map('/docs') do
   run Rack::File.new('./docs')
