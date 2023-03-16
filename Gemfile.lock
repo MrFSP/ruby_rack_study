@@ -1,12 +1,14 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    rack (2.2.3)
+    dalli (3.2.4)
+    rack (2.2.6.4)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  dalli
   rack
 
 BUNDLED WITH
